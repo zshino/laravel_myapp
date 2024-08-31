@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  laravel_myapp:
+    container_name: laravel_myapp
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    volumes:
+      - ./service/:/app
+
+  nginx:
+    container_name: laravel_myapp_nginx
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - 8080:80
+    volumes:
+      - ./service/:/app
+    depends_on:
+      - laravel_myapp
+
+  db:
+    container_name: laravel_myapp_db
+    user: 1000:1000
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: laravel_myapp
+      MYSQL_USER: laravel_myapp
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - mysql-volume:/var/lib/mysql
+
+volumes:
+  mysql-volume:
